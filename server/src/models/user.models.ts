@@ -11,7 +11,7 @@ export interface Iuser extends Document {
   address: string;
   role: string;
   refreshToken: string;
-  comparePassword(password: String): Promise<boolean>;
+  comparePassword(password: string): Promise<boolean>;
   generateAccessToken(): string;
   generateRefreshToken(): string;
 }
@@ -43,7 +43,6 @@ const userSchema = new Schema<Iuser>(
     },
     role: {
       type: String,
-      required: true,
       enum: ["admin", "individual", "technician", "business"],
     },
   },

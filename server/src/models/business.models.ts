@@ -25,6 +25,7 @@ const businessSchema = new Schema<IBusiness>(
     registrationNumber: {
       type: String,
       required: true,
+      unique:true
     },
     panCardImageId: {
       type: String,

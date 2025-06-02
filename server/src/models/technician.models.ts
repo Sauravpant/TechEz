@@ -20,6 +20,7 @@ const technicianSchema = new Schema<ITechnician>(
     registrationNumber: {
       type: String,
       required: true,
+      unique: true,
     },
     panCardImageId: {
       type: String,
