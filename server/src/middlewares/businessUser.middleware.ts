@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { asyncHandler } from "../utils/AsyncHandler.ts";
 import { AppError } from "../utils/AppError.ts";
 import { Iuser } from "../models/user.models.ts";
-import { Business,IBusiness } from "../models/business.model.ts";
+import { Business,IBusiness } from "../models/business.models.ts";
 
 interface AuthenticatedRequest extends Request {
   user: Iuser;
