@@ -44,7 +44,7 @@ const bookingSchema = new Schema<IBooking>(
       default: false,
     },
     price:{
-      Number,
+      type:Number,
       required:true
     },
     isPaid:{
