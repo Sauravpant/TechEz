@@ -7,6 +7,9 @@ export interface IBooking extends Document {
   address: string;
   requestedDate: Date;
   isBusiness: boolean;
+  price:number;
+  isPaid:boolean;
+  paidAt:Date;
   status: "pending" | "accepted" | "completed" | "rejected";
   paymentStatus: "unpaid" | "paid";
   createdAt: Date;
@@ -40,6 +43,17 @@ const bookingSchema = new Schema<IBooking>(
       type: Boolean,
       default: false,
     },
+    price:{
+      Number,
+      required:true
+    },
+    isPaid:{
+      type:Boolean,
+      default:false
+    },
+    paidAt:{
+      type:Date
+    },
     status: {
       type: String,
       enum: ["pending", "accepted", "completed", "rejected"],
@@ -49,7 +63,7 @@ const bookingSchema = new Schema<IBooking>(
       type: String,
       enum: ["unpaid", "paid"],
       default: "unpaid",
-    },
+    }
   },
   { timestamps: true }
 );

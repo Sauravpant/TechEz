@@ -8,6 +8,8 @@ export interface ITechnician extends Document {
   panCardImageId: string;
   experience: number;
   status?: "pending" | "verified" | "rejected";
+  rate: number;
+  unit: string;
 }
 
 const technicianSchema = new Schema<ITechnician>(
@@ -38,6 +40,10 @@ const technicianSchema = new Schema<ITechnician>(
       type: Number,
       required: true,
     },
+    rate: {
+      type: Number,
+    },
+    unit: { type: String, enum: ["per_hour", "per_job"], default: "per_job" },
   },
   { timestamps: true }
 );
