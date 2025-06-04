@@ -12,7 +12,7 @@ export const uploadToCloudinary = async (filePath: any): Promise<any> => {
     if (!filePath) return null;
     const response = await cloudinary.uploader.upload(filePath, {
       resource_type: "auto",
-      folder: "chat-app",
+      folder: "TechEz",
     });
     fs.unlinkSync(filePath);
     return response;
