@@ -210,4 +210,23 @@ const resetPassword = asyncHandler(async (req: AuthenticatedRequest, res: Respon
   return res.status(201).json(new ApiResponse(201, "", "Password changed successfully"));
 });
 
-export { registerIndividualUser, registerTechnician, registerBusinessUser, logInUser, logOutUser, resetPassword };
+const uploadProfilePicture = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new AppError(404, "Access denied");
+  }
+  const imagePath = req.file?.path;
+  if (!imagePath) {
+    throw new AppError(400, "Image is required");
+  }
+  const uploadedImage = await uploadToCloudinary(imagePath);
+  if (!uploadedImage) {
+    throw new AppError(500, "Failed to upload image. Please try again.");
+  }
+  user.profilePictureUrl = uploadedImage.secure_url;
+  user.profilePicturePublicId = uploadedImage.public_id;
+  user.save();
+  return res.status(200).json(new ApiResponse(200, user.profilePictureUrl, "Profile picture updated successfully"));
+});
+
+export { registerIndividualUser, registerTechnician, registerBusinessUser, logInUser, logOutUser, resetPassword, uploadProfilePicture };

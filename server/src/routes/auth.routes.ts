@@ -6,6 +6,7 @@ import {
   logInUser,
   logOutUser,
   resetPassword,
+  uploadProfilePicture,
 } from "../controllers/auth.controller.ts";
 import { upload } from "../middlewares/multer.middleware.ts";
 import { verifyJWT } from "../middlewares/auth.middleware.ts";
@@ -17,5 +18,6 @@ router.post("/register-technician", upload.single("panCard"), registerTechnician
 router.get("/login", logInUser);
 router.get("/logout", verifyJWT, logOutUser);
 router.patch("/reset-password", verifyJWT, resetPassword);
+router.patch("/upload-profile-picture", verifyJWT, upload.single("profile"), uploadProfilePicture);
 
 export default router;

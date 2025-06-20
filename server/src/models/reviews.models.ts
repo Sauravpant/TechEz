@@ -8,27 +8,30 @@ export interface IReviews extends Document {
   rating: number;
 }
 
-const reviewSchema = new Schema<IReviews>({
-  reviewerId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const reviewSchema = new Schema<IReviews>(
+  {
+    reviewerId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    technicianId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    comment: {
+      type: String,
+      required: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
   },
-  technicianId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  comment: {
-    type: String,
-    required: true,
-  },
-  rating: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
-  },
-});
+  { timestamps: true }
+);
 
 export const Review = mongoose.model<IReviews>("Review", reviewSchema);

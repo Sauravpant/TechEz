@@ -7,6 +7,8 @@ export interface Iuser extends Document {
   name: string;
   email: string;
   password: string;
+  profilePictureUrl: string;
+  profilePicturePublicId: string;
   phone: string;
   address: string;
   role: string;
@@ -30,6 +32,12 @@ const userSchema = new Schema<Iuser>(
       type: String,
       required: true,
       select: false,
+    },
+    profilePictureUrl: {
+      type: String,
+    },
+    profilePicturePublicId: {
+      type: String,
     },
     phone: {
       type: String,
