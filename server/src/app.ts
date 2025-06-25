@@ -1,7 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import mongoSanitize from "express-mongo-sanitize";
 import { rateLimit } from "express-rate-limit";
 import errorMiddleware from "./middlewares/error.middleware.ts";
 
@@ -16,6 +15,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 // Rate Limiter
+
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -32,6 +32,7 @@ import userRoute from "./routes/user.routes.ts";
 import technicianRoute from "./routes/technician.routes.ts";
 import businessRoute from "./routes/business.routes.ts";
 import adminRoute from "./routes/admin.routes.ts";
+import { requestOtp } from "./controllers/auth.controller.ts";
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/review", reviewRoute);

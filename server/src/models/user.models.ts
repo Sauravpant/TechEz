@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 export interface Iuser extends Document {
   _id: Schema.Types.ObjectId;
   name: string;
+  emailVerified: boolean;
   email: string;
   password: string;
   profilePictureUrl: string;
@@ -28,6 +29,10 @@ const userSchema = new Schema<Iuser>(
       required: true,
       unique: true,
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
     password: {
       type: String,
       required: true,
@@ -38,6 +43,7 @@ const userSchema = new Schema<Iuser>(
     },
     profilePicturePublicId: {
       type: String,
+      select: false,
     },
     phone: {
       type: String,

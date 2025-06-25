@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { User, Iuser } from "../models/user.models.ts";
+import OtpRequest from "../models/Otp.models.ts";
 import { asyncHandler } from "../utils/AsyncHandler.ts";
 import { AppError } from "../utils/AppError.ts";
 import { ApiResponse } from "../utils/ApiResponse.ts";
 import { uploadToCloudinary } from "../utils/cloudinary.ts";
 import { Technician } from "../models/technician.models.ts";
 import { Business } from "../models/business.models.ts";
+import sendMail from "../utils/nodemailer.ts";
 import { Schema } from "mongoose";
 
 interface AuthenticatedRequest extends Request {
@@ -28,6 +30,47 @@ const generateAccessAndRefreshTokens = async (userId: string | Schema.Types.Obje
   }
 };
 
+const requestOtp = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+  const { email } = req.body;
+  if (!email || !email.trim()) {
+    throw new AppError(400, "Email is required");
+  }
+  const user = await User.findOne({ email: email });
+  if (user) {
+    throw new AppError(403, "User with above email already exists");
+  }
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  await OtpRequest.findOneAndUpdate({ email: email.trim() }, { otp, createdAt: new Date() }, { upsert: true, new: true });
+  await sendMail(email, otp);
+  return res.status(200).json(new ApiResponse(200, email.trim(), "Otp sent to your email"));
+});
+
+const verifyOtp = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    throw new AppError(400, "Otp is required");
+  }
+  const user = await User.findOne({ email: email });
+  if (user) {
+    throw new AppError(403, "User with above email already exists");
+  }
+  const otpUser = await OtpRequest.findOne({ email: email });
+  if (!otpUser) {
+    throw new AppError(404, "Otp not found or expired");
+  }
+
+  if (otpUser.otp !== otp) {
+    throw new AppError(400, "OTP is invalid");
+  }
+  const newUser = new User({
+    email: email.trim(),
+    emailVerified: true,
+  });
+
+  await newUser.save({ validateBeforeSave: false });
+  await OtpRequest.deleteOne({ email: email.trim() });
+  return res.status(200).json(new ApiResponse(200, newUser.email, "Email verified successfully"));
+});
 const registerIndividualUser = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const { fullName, email, password } = req.body;
 
@@ -35,19 +78,26 @@ const registerIndividualUser = asyncHandler(async (req: AuthenticatedRequest, re
     throw new AppError(400, "All fields are required");
   }
 
-  const userExists = await User.findOne({ email: email.trim().toLowerCase() });
-  if (userExists) {
+  const emailUser = await User.findOne({ email: email.trim().toLowerCase() });
+  if (!emailUser) {
+    throw new AppError(400, "Enter the same email as during verification process");
+  }
+
+  if (!emailUser.emailVerified) {
+    throw new AppError(400, "Please verify your email first before registration");
+  }
+
+  if (emailUser.password) {
     throw new AppError(409, "Email is already registered");
   }
 
-  const user = await User.create({
-    name: fullName.trim(),
-    email: email.trim().toLowerCase(),
-    password: password,
-    role: "individual",
-  });
+  emailUser.name = fullName.trim();
+  emailUser.password = password;
+  emailUser.role = "individual";
 
-  return res.status(201).json(new ApiResponse(201, user, "User registered successfully"));
+  await emailUser.save();
+
+  return res.status(201).json(new ApiResponse(201, emailUser, "User registered successfully"));
 });
 
 const registerTechnician = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
@@ -57,7 +107,6 @@ const registerTechnician = asyncHandler(async (req: AuthenticatedRequest, res: R
   if (!fullName?.trim() || !email?.trim() || !password?.trim() || !registrationNumber?.trim() || !experience) {
     throw new AppError(400, "All fields are required");
   }
-
   if (!imagePath) {
     throw new AppError(400, "PAN card image is required");
   }
@@ -67,25 +116,29 @@ const registerTechnician = asyncHandler(async (req: AuthenticatedRequest, res: R
     throw new AppError(500, "Failed to upload PAN card");
   }
 
-  const userExists = await User.findOne({ email: email.trim().toLowerCase() });
-  const regExists = await Technician.findOne({ registrationNumber: registrationNumber.trim() });
-
-  if (userExists) {
+  const emailUser = await User.findOne({ email: email.trim().toLowerCase() });
+  if (!emailUser) {
+    throw new AppError(400, "Enter the same email as during verification process");
+  }
+  if (!emailUser.emailVerified) {
+    throw new AppError(400, "Please verify your email first before registration");
+  }
+  if (emailUser.password) {
     throw new AppError(409, "Email is already registered");
   }
+
+  const regExists = await Technician.findOne({ registrationNumber: registrationNumber.trim() });
   if (regExists) {
     throw new AppError(409, "Technician with this registration number already exists");
   }
 
-  const user = await User.create({
-    name: fullName.trim(),
-    email: email.trim().toLowerCase(),
-    password: password,
-    role: "technician",
-  });
+  emailUser.name = fullName.trim();
+  emailUser.password = password;
+  emailUser.role = "technician";
+  await emailUser.save();
 
   const technician = await Technician.create({
-    userId: user._id,
+    userId: emailUser._id,
     registrationNumber: registrationNumber.trim(),
     panCardImageId: uploadedImage.public_id,
     panCardUrl: uploadedImage.secure_url,
@@ -93,7 +146,7 @@ const registerTechnician = asyncHandler(async (req: AuthenticatedRequest, res: R
     status: "pending",
   });
 
-  return res.status(201).json(new ApiResponse(201, { user, technician }, "Technician profile created. Pending admin verification."));
+  return res.status(201).json(new ApiResponse(201, { user: emailUser, technician }, "Technician profile created. Pending admin verification"));
 });
 
 const registerBusinessUser = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
@@ -103,7 +156,6 @@ const registerBusinessUser = asyncHandler(async (req: AuthenticatedRequest, res:
   if (!fullName?.trim() || !email?.trim() || !password?.trim() || !registrationNumber?.trim() || !businessType?.trim() || !companyName?.trim()) {
     throw new AppError(400, "All fields are required");
   }
-
   if (!imagePath) {
     throw new AppError(400, "PAN card image is required");
   }
@@ -113,33 +165,38 @@ const registerBusinessUser = asyncHandler(async (req: AuthenticatedRequest, res:
     throw new AppError(500, "Failed to upload PAN card");
   }
 
-  const userExists = await User.findOne({ email: email.trim().toLowerCase() });
-  const regExists = await Business.findOne({ registrationNumber: registrationNumber.trim() });
-
-  if (userExists) {
+  const emailUser = await User.findOne({ email: email.trim().toLowerCase() });
+  if (!emailUser) {
+    throw new AppError(400, "Enter the same email as during verification process");
+  }
+  if (!emailUser.emailVerified) {
+    throw new AppError(400, "Please verify your email first before registration");
+  }
+  if (emailUser.password) {
     throw new AppError(409, "Email is already registered");
   }
+
+  const regExists = await Business.findOne({ registrationNumber: registrationNumber.trim() });
   if (regExists) {
-    throw new AppError(409, "Business  with this registration number already exists");
+    throw new AppError(409, "Business with this registration number already exists");
   }
-  const user = await User.create({
-    name: fullName.trim(),
-    email: email.trim().toLowerCase(),
-    password: password,
-    role: "business",
-  });
+
+  emailUser.name = fullName.trim();
+  emailUser.password = password;
+  emailUser.role = "business";
+  await emailUser.save();
 
   const business = await Business.create({
-    companyName: companyName,
-    userId: user._id,
+    companyName,
+    userId: emailUser._id,
     registrationNumber: registrationNumber.trim(),
-    businessType: businessType,
+    businessType,
     panCardImageId: uploadedImage.public_id,
     panCardImageUrl: uploadedImage.secure_url,
     status: "pending",
   });
 
-  return res.status(201).json(new ApiResponse(201, { user, business }, "Business profile created. Pending admin verification"));
+  return res.status(201).json(new ApiResponse(201, { user: emailUser, business }, "Business profile created. Pending admin verification"));
 });
 
 const logInUser = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
@@ -229,4 +286,14 @@ const uploadProfilePicture = asyncHandler(async (req: AuthenticatedRequest, res:
   return res.status(200).json(new ApiResponse(200, user.profilePictureUrl, "Profile picture updated successfully"));
 });
 
-export { registerIndividualUser, registerTechnician, registerBusinessUser, logInUser, logOutUser, resetPassword, uploadProfilePicture };
+export {
+  registerIndividualUser,
+  registerTechnician,
+  registerBusinessUser,
+  logInUser,
+  logOutUser,
+  resetPassword,
+  uploadProfilePicture,
+  requestOtp,
+  verifyOtp,
+};
