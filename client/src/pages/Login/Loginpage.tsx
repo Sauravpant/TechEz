@@ -1,17 +1,30 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { LoaderIcon } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 import { MdEmail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import type { LoginFormData } from "../../types/types";
+import { Link, useNavigate } from "react-router-dom";
+import { axiosInstance } from "../../lib/axios";
+import { loginFailed, loginRequest, loginSuccess } from "../../features/auth/authSlice";
+import type { RootState } from "../../store/store";
 
-const LoginPage: React.FC = () => {
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+const LoginForm: React.FC<React.ComponentProps<"form">> = ({ className }) => {
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const loading = useSelector((state: RootState) => state.auth.loading);
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginFormData> = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,141 +45,133 @@ const LoginPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleEyeClick = (): void => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    console.log("Form Submitted", formData);
-  };
 
+    if (!validateForm()) return;
+
+    try {
+      dispatch(loginRequest());
+      const response = await axiosInstance.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+      const result = response.data.data;
+      dispatch(loginSuccess(result));
+      toast.success(result.message);
+      switch (result.role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "individual":
+          navigate("/individual");
+          break;
+        case "technician":
+          navigate("/technician");
+          break;
+        case "business":
+          navigate("/business");
+          break;
+        default:
+          navigate("/unauthorized");
+      }
+    } catch (err: any) {
+      dispatch(loginFailed());
+      toast.error(err.response.data.message);
+    }
+  };
   return (
-    <div className="relative min-h-screen w-full bg-white overflow-hidden">
-      <div className="hidden lg:block absolute right-0 w-[55%] h-full">
-        <div className="absolute inset-0 bg-[#FF5454]" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <img
-            src="/loginpagetools.png"
-            alt="Tools"
-            className="w-[90%] h-[90%] object-contain"
-          />
+    <form className={cn("flex flex-col gap-8 w-full", className)} method="post" onSubmit={handleSubmit}>
+      <div className="flex flex-col items-start gap-2 text-left">
+        <div className="mb-8">
+          <div className="flex items-baseline">
+            <h1 className="font-inter text-2xl sm:text-3xl lg:text-4xl font-normal leading-normal lg:leading-[54px]">Login to</h1>
+            <span className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold leading-normal lg:leading-[82px] ml-2">
+              Tech<span className="text-[#4169E1] italic">Ez</span>
+            </span>
+          </div>
         </div>
       </div>
-      <div className="relative w-full min-h-screen bg-white lg:bg-transparent lg:w-[45%] flex items-center">
-        <div className="w-full max-w-[500px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 lg:mb-16">
-            <div className="flex items-baseline">
-              <h1 className="font-inter text-2xl sm:text-[28px] lg:text-[45px] font-normal leading-normal lg:leading-[54px]">
-                Login to
-              </h1>
-              <span className="font-poppins text-3xl sm:text-[36px] lg:text-[55px] font-medium leading-normal lg:leading-[82px] ml-2">
-                Tech<span className="text-[#FF5454] italic">Ez</span>
-              </span>
-            </div>
+      <div className="grid gap-6 w-full">
+        <div className="grid gap-3">
+          <Label htmlFor="email" className="text-base font-medium">
+            Email<span className="text-red-500">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className="pl-10 text-base border-b-2 border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1]"
+            />
+            <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
-          <form
-            className="space-y-6 sm:space-y-8 lg:space-y-[60px]"
-            onSubmit={handleSubmit}>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                <MdEmail className="w-5 h-4 sm:w-6 sm:h-5 text-[#818181]" />
-                <label className="font-inter text-base sm:text-lg lg:text-[22px] font-semibold text-[#818181]">
-                  Email<span className="text-[#FF5454]">*</span>
-                </label>
-              </div>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full bg-transparent border-b-2 sm:border-b-[3px] border-black pb-1 sm:pb-2 focus:outline-none font-inter text-sm sm:text-base lg:text-xl"
-                required
-              />
-              {errors.email && (
-                <p className="text-red-500 text-xs sm:text-sm">
-                  {errors.email}
-                </p>
-              )}
-            </div>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                <RiLockPasswordLine className="w-5 h-4 sm:w-6 sm:h-5 text-[#818181]" />
-                <label className="font-inter text-base sm:text-lg lg:text-[22px] font-semibold text-[#818181]">
-                  Password<span className="text-[#FF5454]">*</span>
-                </label>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full bg-transparent border-b-2 sm:border-b-[3px] border-black pb-1 sm:pb-2 focus:outline-none pr-8 sm:pr-10 font-inter text-sm sm:text-base lg:text-xl"
-                  required
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-xs sm:text-sm">
-                    {errors.password}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={handleEyeClick}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-[#FF5454] cursor-pointer">
-                  {showPassword ? (
-                    <AiOutlineEyeInvisible className="w-5 h-4 sm:w-6 sm:h-5" />
-                  ) : (
-                    <AiOutlineEye className="w-5 h-4 sm:w-6 sm:h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="w-4 h-4 sm:w-5 sm:h-5 lg:w-7 lg:h-7 border border-black"
-                />
-                <label
-                  htmlFor="remember"
-                  className="font-inter text-xs sm:text-sm lg:text-base font-light">
-                  Remember Me
-                </label>
-              </div>
-              <button
-                type="button"
-                className="font-inter text-xs sm:text-sm lg:text-base font-light border-b border-black cursor-pointer">
-                Forgot Password?
-              </button>
-            </div>
-            <button
-              type="submit"
-              className="w-full h-[38px] sm:h-[44px] lg:h-[50px] bg-gradient-to-b from-[#FF5454] to-[#993232] text-white font-inter text-lg sm:text-2xl lg:text-[34px] font-semibold cursor-pointer">
-              LOGIN
-            </button>
-            <div className="text-center">
-              <span className="font-inter text-sm sm:text-base lg:text-lg font-medium">
-                Don't have an account?{" "}
-              </span>
-              <Link
-                to="/auth/signup"
-                className="font-inter text-base sm:text-lg lg:text-xl font-bold text-[#FF5454] border-b border-[#FF5454]">
-                Register
-              </Link>
-            </div>
-          </form>
         </div>
+        <div className="grid gap-3">
+          <Label htmlFor="password" className="text-base font-medium">
+            Password<span className="text-red-500">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+              className="pl-10 pr-10 text-base border-b-2 border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1]"
+            />
+            <RiLockPasswordLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <div onClick={() => setShowPassword((prev) => !prev)} className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </div>
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+          </div>
+        </div>
+        <div className="flex items-center justify-between w-full mt-2">
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="remember" className="accent-[#4169E1]" />
+            <Label htmlFor="remember" className="text-sm">
+              Remember Me
+            </Label>
+          </div>
+          <a href="#" className="text-sm text-black hover:underline">
+            Forgot Password?
+          </a>
+        </div>
+        <Button type="submit" className="w-full bg-[#4169E1] text-lg font-semibold py-2 mt-2 cursor-pointer">
+          {loading ? <LoaderIcon className="animate-spin" /> : "Login"}
+        </Button>
+      </div>
+      <div className="text-center text-sm mt-4">
+        Don&apos;t have an account?{" "}
+        <Link to="/auth/signup/verify-email" className="text-[#4169E1] font-medium hover:underline">
+          Register
+        </Link>
+      </div>
+    </form>
+  );
+};
+
+const LoginPage: React.FC = () => {
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 bg-white min-h-screen p-0">
+        <div className="w-full max-w-md px-8">
+          <LoginForm />
+        </div>
+      </div>
+      <div className="hidden lg:flex w-1/2 h-screen bg-[#4169E1] items-center justify-center relative">
+        <img src="/loginpagetools.png" alt="Tools" className="object-contain h-[70%] w-[90%] mx-auto" />
       </div>
     </div>
   );
