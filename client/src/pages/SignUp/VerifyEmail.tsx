@@ -62,8 +62,7 @@ const VerifyEmail: React.FC = () => {
           <form className="flex flex-col gap-8 w-full" onSubmit={handleSubmit}>
             <div className="flex flex-col items-start gap-2 text-left mb-8">
               <div className="flex items-baseline">
-                <h1 className="font-inter text-2xl sm:text-3xl lg:text-4xl font-normal">Verify your</h1>
-                <span className="text-3xl sm:text-4xl lg:text-5xl leading-normal lg:leading-[82px] ml-2">Email</span>
+                <h1 className="font-inter text-2xl sm:text-3xl lg:text-4xl font-normal">Verify Your Email First</h1>
               </div>
               <span className="text-lg text-gray-600 mt-2">Enter your email to receive a verification code</span>
             </div>

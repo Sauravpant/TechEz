@@ -69,10 +69,10 @@ const LoginForm: React.FC<React.ComponentProps<"form">> = ({ className }) => {
           navigate("/admin");
           break;
         case "individual":
-          navigate("/individual");
+          navigate("/");
           break;
         case "technician":
-          navigate("/technician");
+          navigate("/technician/dashboard");
           break;
         case "business":
           navigate("/business");

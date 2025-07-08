@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import type { TechnicianRegisterFormData } from "../../types/types";
-import { Link } from "react-router-dom";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 
 const RegisterTechnician: React.FC = () => {
   const [formData, setFormData] = useState<TechnicianRegisterFormData>({
@@ -20,46 +21,27 @@ const RegisterTechnician: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked, files } = e.target;
-
     if (type === "file" && files) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
       setFileName(files[0].name);
     } else if (type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checked,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,}$/;
-
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,}$/;
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!emailRegex.test(formData.email))
-      newErrors.email = "Invalid email format";
-    if (!passwordRegex.test(formData.password))
-      newErrors.password =
-        "Password must be 8+ chars, with uppercase, lowercase, number, special char";
-    if (!formData.registrationNumber.trim())
-      newErrors.registrationNumber = "Registration number is required";
+    if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email format";
+    if (!passwordRegex.test(formData.password)) newErrors.password = "Password must be 8+ chars, with uppercase, lowercase, number, special char";
+    if (!formData.registrationNumber.trim()) newErrors.registrationNumber = "Registration number is required";
     if (!formData.panCard) newErrors.panCard = "Pan card is required";
-    if (!formData.experience || parseInt(formData.experience) < 0)
-      newErrors.experience = "Experience must be a positive number";
-    if (!formData.termsAccepted)
-      newErrors.termsAccepted = "You must accept the terms";
-
+    if (!formData.experience || parseInt(formData.experience) < 0) newErrors.experience = "Experience must be a positive number";
+    if (!formData.termsAccepted) newErrors.termsAccepted = "You must accept the terms";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -73,197 +55,131 @@ const RegisterTechnician: React.FC = () => {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-white flex flex-col lg:flex-row">
-      <div className="h-full w-full lg:w-[45%] p-2 sm:p-4 lg:p-6">
-        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4">
-          <span className="font-poppins text-xl sm:text-3xl font-medium">
-            Tech<span className="text-[#FF5454] italic">Ez</span>
-          </span>
-          <div className="w-0.5 sm:w-1 h-6 sm:h-8 bg-black"></div>
-          <span className="text-base sm:text-lg font-extralight font-inter">
-            Technicians
-          </span>
-        </div>
-
-        <div className="max-w-[450px] mx-auto border border-black sm:border-2 rounded-lg sm:rounded-xl p-3 sm:p-4">
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-center mb-2">
-            REGISTRATION
-          </h2>
-          <div className="w-[150px] sm:w-[250px] h-0.5 bg-black mx-auto mb-3"></div>
-
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-2 sm:space-y-3 flex flex-col overflow-y-auto px-1"
-            style={{ maxHeight: "calc(100vh - 230px)" }}>
-            <div className="space-y-1">
-              <label className="block text-sm lg:text-base font-medium">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                placeholder="John Doe"
-                className="w-full h-8 sm:h-9 lg:h-10 border border-black sm:border-2 px-2 sm:px-3 placeholder-gray-400 rounded text-sm"
-                value={formData.fullName}
-                onChange={handleInputChange}
-              />
-              {errors.fullName && (
-                <p className="text-red-500 text-xs">{errors.fullName}</p>
-              )}
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left: Form */}
+      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 bg-white min-h-screen p-0">
+        <div className="w-full max-w-lg px-4 sm:px-8">
+          <div className="flex items-center gap-3 mb-8 mt-8">
+            <span className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold leading-normal">
+              Tech<span className="text-[#4169E1] italic">Ez</span>
+            </span>
+            <div className="w-[2px] h-8 sm:h-10 bg-black mx-2" />
+            <span className="font-inter text-lg sm:text-xl font-light">Technicians</span>
+          </div>
+          <div className="bg-white border border-black rounded-2xl shadow-md px-6 py-8 sm:px-10 sm:py-10 w-full">
+            <div className="flex items-center mb-6">
+              <h1 className="flex-1 text-center text-2xl sm:text-3xl lg:text-4xl font-bold tracking-wide">REGISTRATION</h1>
             </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm lg:text-base font-medium">
-                E-mail
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="abcd@gmail.com"
-                className="w-full h-8 sm:h-9 lg:h-10 border border-black sm:border-2 px-2 sm:px-3 placeholder-gray-400 rounded text-sm"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-              {errors.email && (
-                <p className="text-red-500 text-xs">{errors.email}</p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm lg:text-base font-medium">
-                Password
-              </label>
+            <hr className="border-black mb-6" />
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-2">
+              <div>
+                <label className="block font-medium mb-1">Full Name</label>
+                <Input
+                  type="text"
+                  name="fullName"
+                  placeholder="Eg. Swastika Dhakal"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className={`w-full border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1] ${errors.fullName ? "border-red-500" : ""}`}
+                />
+                {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+              </div>
+              <div>
+                <label className="block font-medium mb-1">E-mail</label>
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="Eg. abcd@gmail.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={`w-full border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1] ${errors.email ? "border-red-500" : ""}`}
+                />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              </div>
               <div className="relative">
-                <input
+                <label className="block font-medium mb-1">Password</label>
+                <Input
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  className="w-full h-8 sm:h-9 lg:h-10 border border-black sm:border-2 px-2 sm:px-3 rounded text-sm"
+                  placeholder=""
                   value={formData.password}
                   onChange={handleInputChange}
+                  className={`w-full border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1] pr-10 ${errors.password ? "border-red-500" : ""}`}
                 />
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-[#FF5454] text-base">
-                  {showPassword ? <HiEyeOff /> : <HiEye />}
+                  className="absolute right-3 top-9 text-gray-500 hover:text-[#4169E1]"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <HiEyeOff className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
                 </button>
+                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-xs">{errors.password}</p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm lg:text-base font-medium">
-                Registration Number
-              </label>
-              <input
-                type="text"
-                name="registrationNumber"
-                placeholder="Eg. 000000000000000"
-                className="w-full h-8 sm:h-9 lg:h-10 border border-black sm:border-2 px-2 sm:px-3 placeholder-gray-400 rounded text-sm"
-                value={formData.registrationNumber}
-                onChange={handleInputChange}
-              />
-              {errors.registrationNumber && (
-                <p className="text-red-500 text-xs">
-                  {errors.registrationNumber}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm lg:text-base font-medium">
-                Pan Card
-              </label>
-              <div className="relative">
-                <input
-                  type="file"
-                  name="panCard"
-                  accept="image/*"
+              <div>
+                <label className="block font-medium mb-1">Registration Number</label>
+                <Input
+                  type="text"
+                  name="registrationNumber"
+                  placeholder="Eg. 000000000000000"
+                  value={formData.registrationNumber}
                   onChange={handleInputChange}
-                  className="hidden"
-                  id="panCard"
+                  className={`w-full border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1] ${errors.registrationNumber ? "border-red-500" : ""}`}
                 />
-                <label
-                  htmlFor="panCard"
-                  className="flex items-center w-full h-8 sm:h-9 lg:h-10 border border-black sm:border-2 rounded text-sm overflow-hidden">
-                  <span className="bg-[#FF5454] text-white px-3 h-full flex items-center">
-                    Choose File
-                  </span>
-                  <span className="px-2 sm:px-3 truncate text-gray-500">
-                    {fileName || "No file chosen"}
-                  </span>
+                {errors.registrationNumber && <p className="text-red-500 text-sm mt-1">{errors.registrationNumber}</p>}
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Pan Card</label>
+                <div className="relative">
+                  <input type="file" name="panCard" accept="image/*" onChange={handleInputChange} className="hidden" id="panCard" />
+                  <label
+                    htmlFor="panCard"
+                    className="flex items-center w-full h-10 border border-black rounded text-sm overflow-hidden cursor-pointer"
+                  >
+                    <span className="bg-[#4169E1] text-white px-3 h-full flex items-center">Choose File</span>
+                    <span className="px-2 sm:px-3 truncate text-gray-500">{fileName || "No file chosen"}</span>
+                  </label>
+                </div>
+                {errors.panCard && <p className="text-red-500 text-sm mt-1">{errors.panCard}</p>}
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Experience</label>
+                <Input
+                  type="number"
+                  name="experience"
+                  placeholder="Eg. 1"
+                  value={formData.experience}
+                  onChange={handleInputChange}
+                  className={`w-full border-black rounded-none bg-transparent focus:outline-none focus:ring-0 focus:border-[#4169E1] ${errors.experience ? "border-red-500" : ""}`}
+                />
+                {errors.experience && <p className="text-red-500 text-sm mt-1">{errors.experience}</p>}
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  name="termsAccepted"
+                  className="accent-[#4169E1] w-4 h-4"
+                  checked={formData.termsAccepted}
+                  onChange={handleInputChange}
+                />
+                <label className="text-sm">
+                  I agree to the <span className="text-[#4169E1] underline cursor-pointer">Terms & Conditions.</span>
                 </label>
               </div>
-              {errors.panCard && (
-                <p className="text-red-500 text-xs">{errors.panCard}</p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm lg:text-base font-medium">
-                Experience
-              </label>
-              <input
-                type="number"
-                name="experience"
-                placeholder="Eg. 1"
-                className="w-full h-8 sm:h-9 lg:h-10 border border-black sm:border-2 px-2 sm:px-3 placeholder-gray-400 rounded text-sm"
-                value={formData.experience}
-                onChange={handleInputChange}
-              />
-              {errors.experience && (
-                <p className="text-red-500 text-xs">{errors.experience}</p>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="termsAccepted"
-                className="w-4 h-4 sm:w-5 sm:h-5 border border-black rounded cursor-pointer"
-                checked={formData.termsAccepted}
-                onChange={handleInputChange}
-              />
-              <label className="text-xs sm:text-sm">
-                I agree to{" "}
-                <Link to="" className="text-red-400">
-                  Terms and Conditions
-                </Link>
-              </label>
-              {errors.termsAccepted && (
-                <p className="text-red-500 text-xs">{errors.termsAccepted}</p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-[#FF5454] text-white font-bold text-sm px-4 sm:px-6 py-2 rounded hover:bg-[#ff3a3a] transition-colors cursor-pointer mt-2">
-              SUBMIT
-            </button>
-          </form>
+              {errors.termsAccepted && <p className="text-red-500 text-sm mt-1">{errors.termsAccepted}</p>}
+              <Button type="submit" className="w-full bg-[#4169E1] text-lg font-semibold py-2 mt-2">
+                SUBMIT
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
-
-      <div className="hidden lg:block lg:w-[55%] relative">
-        <div className="absolute inset-0">
-          <img
-            src="/curvepath.png"
-            alt="Background Shape"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute left-[10%] top-[8%] w-[60%] h-[65%]">
-          <img
-            src="/technician.png"
-            alt="Technician"
-            className="w-full h-full object-contain object-left-bottom drop-shadow-[0px_28px_26.1px_rgba(0,0,0,0.25)]"
-            style={{ transform: "translateX(32px) translateY(32px)" }}
-          />
-        </div>
+      {/* Right: Image */}
+      <div className="hidden lg:flex w-1/2 h-screen bg-[#4169E1] items-center justify-center relative">
+        <img src="/technician.png" alt="Technician" className="object-contain h-[70%] w-[90%] mx-auto" />
       </div>
     </div>
   );
 };
+
 export default RegisterTechnician;
