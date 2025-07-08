@@ -42,7 +42,7 @@ export interface RoleRouteProps {
   allowedRoles: string;
 }
 
- interface User {
+interface User {
   _id: string;
   name: string;
   email: string;
@@ -53,21 +53,16 @@ export interface RoleRouteProps {
   profilePictureUrl: string;
 }
 
-
-export interface OtpSchema {
-  email:string,
-  isOtpSent:boolean,
-  isEmailSent:boolean,
-  loading:boolean
-  isOtpVerified:boolean
-  isEmailVerified:boolean,
-}
-
 export interface OtpSchema {
   email: string;
-  loading: boolean;
-  isEmailSent: boolean;
   isOtpSent: boolean;
-  isEmailVerified: boolean;
+  isEmailSent: boolean;
+  loading: boolean;
   isOtpVerified: boolean;
+  isEmailVerified: boolean;
+}
+
+export interface ThemeContext {
+  darkMode: boolean;
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
