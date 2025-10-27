@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOtpRequest extends Document {
+  _id: mongoose.Types.ObjectId;
   email: string;
   otp: string;
   expiresAt: Date;
