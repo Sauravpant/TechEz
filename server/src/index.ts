@@ -1,17 +1,20 @@
 import "dotenv/config";
-import connectDB from "./db/index.ts";
-import app from "./app.ts";
+import connectDB from "./configs/db";
+import server from "./app";
+import { connectRedis } from "./configs/redis";
 
 const PORT = process.env.PORT || 4000;
 
 connectDB()
+  .then(async () => {
+    await connectRedis();
+  })
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(` Server running at http://localhost:${PORT}`);
+    server.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("Failed to connect to the database");
     console.error(err);
-    process.exit(1); 
+    process.exit(1);
   });
