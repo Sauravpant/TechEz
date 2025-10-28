@@ -10,6 +10,7 @@ export interface IUser extends Document {
   address?: string;
   profilePictureUrl?: string;
   profilePicturePublicId?: string;
+  isVerified?: boolean;
   isDeactivated: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -52,6 +53,10 @@ const userSchema = new Schema<IUser>(
       type: String,
     },
     isDeactivated: {
+      type: Boolean,
+      default: false,
+    },
+    isVerified: {
       type: Boolean,
       default: false,
     },
