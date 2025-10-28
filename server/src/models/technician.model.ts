@@ -21,6 +21,7 @@ const technicianSchema = new Schema<ITechnician>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     category: {
       type: Schema.Types.ObjectId,

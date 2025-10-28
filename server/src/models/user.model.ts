@@ -25,6 +25,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     password: {
       type: String,
@@ -34,6 +35,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     role: {
       type: String,
@@ -56,5 +58,7 @@ const userSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+
+userSchema.index({ email: 1, phone: 1 });
 
 export const User = mongoose.model<IUser>("User", userSchema);

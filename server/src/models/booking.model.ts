@@ -18,11 +18,13 @@ const bookingSchema = new Schema<IBooking>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     technician: {
       type: Schema.Types.ObjectId,
       ref: "Technician",
       required: true,
+      index: true,
     },
     completedAt: {
       type: Date,
@@ -31,11 +33,13 @@ const bookingSchema = new Schema<IBooking>(
       type: String,
       enum: ["bid", "manual"],
       required: true,
+      index: true,
     },
     status: {
       type: String,
       enum: ["pending", "accepted", "completed", "cancelled"],
       default: "pending",
+      index: true,
     },
     totalPrice: {
       type: Number,

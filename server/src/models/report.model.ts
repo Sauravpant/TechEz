@@ -16,11 +16,13 @@ const reportSchema = new Schema<IReport>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     reportedUser: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     reason: {
       type: String,

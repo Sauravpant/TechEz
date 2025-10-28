@@ -19,11 +19,13 @@ const bidSchema = new Schema<IBid>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",
       required: true,
+      index: true,
     },
     title: {
       type: String,

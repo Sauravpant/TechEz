@@ -16,11 +16,13 @@ const offerSchema = new Schema<IBidOffer>(
       type: Schema.Types.ObjectId,
       ref: "Bid",
       required: true,
+      index: true,
     },
     technician: {
       type: Schema.Types.ObjectId,
       ref: "Technician",
       required: true,
+      index: true,
     },
     amount: {
       type: Number,

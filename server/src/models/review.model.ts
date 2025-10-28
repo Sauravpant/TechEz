@@ -17,16 +17,19 @@ const reviewSchema = new Schema<IReview>(
       type: Schema.Types.ObjectId,
       ref: "Booking",
       required: true,
+      index: true,
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     technician: {
       type: Schema.Types.ObjectId,
       ref: "Technician",
       required: true,
+      index: true,
     },
     rating: {
       type: Number,
