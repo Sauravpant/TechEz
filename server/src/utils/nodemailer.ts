@@ -1,25 +1,27 @@
 import nodemailer from "nodemailer";
 
+interface MailOptions {
+  email: string;
+  otp: string;
+  text: string;
+  subject: string;
+}
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "sauravpant777@gmail.com",
+    user: process.env.APP_EMAIL,
     pass: process.env.APP_PASSWORD,
   },
 });
 
-const sendMail = async (email, otp) => {
-  const textContent = `Hi , please use this verification code to confirm your account. Your verification code is ${otp}. It will expire in 10 minutes.`;
-  const htmlContent = `
-    <p>Hi , please use this verification code to confirm your account.</p> <p> Your verification code is <b>${otp}</b>.</p>
-    <p>It will expire in 10 minutes. Please use it promptly.</p>
-  `;
+const sendMail = async ({ email, otp, text, subject }: MailOptions) => {
+  const textContent = `${text} Your OTP  is ${otp}. It will expire in 5 minutes.`;
   await transporter.sendMail({
-    from: "sauravpant777@gmail.com",
+    from: process.env.APP_EMAIL,
     to: email,
-    subject: "Your Verification Code",
+    subject: subject,
     text: textContent,
-    html: htmlContent,
   });
 };
 

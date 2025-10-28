@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
+import { AppError } from "./app-error";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -7,27 +7,37 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET_KEY!,
 });
 
-export const uploadToCloudinary = async (filePath: any): Promise<any> => {
-  try {
-    if (!filePath) return null;
-    const response = await cloudinary.uploader.upload(filePath, {
-      resource_type: "auto",
-      folder: "TechEz",
-    });
-    fs.unlinkSync(filePath);
-    return response;
-  } catch (err) {
-    fs.existsSync(filePath) && fs.unlinkSync(filePath);
-    throw null;
-  }
+interface CloudinaryUploadResult {
+  public_id: string;
+  secure_url: string;
+  [key: string]: any;
+}
+
+export const uploadToCloudinary = async (fileBuffer: Buffer, fileName: string): Promise<CloudinaryUploadResult> => {
+  return new Promise((resolve, _) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "image",
+        folder: "TechEz",
+        public_id: fileName,
+      },
+      (err: any, result) => {
+        if (err) {
+          throw new AppError(500, err);
+        }
+        resolve(result as CloudinaryUploadResult);
+      }
+    );
+    stream.end(fileBuffer);
+  });
 };
 
-export const deleteFromCloudinary = async (publicId: any): Promise<any> => {
+export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   try {
     await cloudinary.uploader.destroy(publicId, {
-      resource_type: "auto",
+      resource_type: "image",
     });
-  } catch (error) {
-    throw null;
+  } catch (err: any) {
+    throw new AppError(500, err);
   }
 };
