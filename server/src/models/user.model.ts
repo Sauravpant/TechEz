@@ -7,11 +7,12 @@ export interface IUser extends Document {
   password: string;
   phone: string;
   role: "user" | "technician" | "admin";
-  address?: string;
-  profilePictureUrl?: string;
-  profilePicturePublicId?: string;
+  address?: string | null;
+  profilePictureUrl?: string | null;
+  profilePicturePublicId?: string | null;
   isVerified?: boolean;
   isDeactivated: boolean;
+  refreshToken?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,12 +46,15 @@ const userSchema = new Schema<IUser>(
     },
     address: {
       type: String,
+      default: null,
     },
     profilePictureUrl: {
       type: String,
+      default: null,
     },
     profilePicturePublicId: {
       type: String,
+      default: null,
     },
     isDeactivated: {
       type: Boolean,
@@ -59,6 +63,10 @@ const userSchema = new Schema<IUser>(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    refreshToken: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }

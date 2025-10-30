@@ -5,9 +5,9 @@ export interface ITechnician extends Document {
   user: mongoose.Types.ObjectId;
   category: mongoose.Types.ObjectId;
   experience: number;
-  registrationNumber?: string;
-  documentUrl?: string;
-  documentPublicId?: string;
+  registrationNumber?: string | null;
+  documentUrl?: string | null;
+  documentPublicId?: string | null;
   status: "pending" | "approved" | "rejected";
   bio: string;
   description: string;
@@ -35,12 +35,15 @@ const technicianSchema = new Schema<ITechnician>(
     registrationNumber: {
       type: String,
       unique: true,
+      default: null,
     },
     documentUrl: {
       type: String,
+      default: null,
     },
     documentPublicId: {
       type: String,
+      default: null,
     },
     status: {
       type: String,
