@@ -1,13 +1,14 @@
-import { Request, Response, NextFunction } from "express";
-import { ZodError } from "zod";
+import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import {  ZodError } from "zod";
 
-const errorMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
+const errorMiddleware: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof ZodError) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       errors: "Validation failed",
       message: err.issues[0].message,
     });
+    return;
   }
   const statusCode = err.statusCode || 500;
   res.status(statusCode).json({

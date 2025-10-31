@@ -11,12 +11,13 @@ interface AuthenticatedRequest extends Request {
 
 export const verifyJWT = asyncHandler(async (req: AuthenticatedRequest, _, next: NextFunction) => {
   try {
+    console.log(req.cookies?.accessToken)
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
       throw new AppError(201, "Unauthorized access");
     }
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as { _id: string };
-    const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as { userId: string };
+    const user = await User.findById(decodedToken?.userId).select("-password -refreshToken");
     if (!user) {
       throw new AppError(404, "Invalid token");
     }
