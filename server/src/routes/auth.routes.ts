@@ -1,27 +1,15 @@
-import express from "express";
-import {
-  registerIndividualUser,
-  registerTechnician,
-  registerBusinessUser,
-  logInUser,
-  logOutUser,
-  resetPassword,
-  uploadProfilePicture,
-  requestOtp,
-  verifyOtp
-} from "../controllers/auth.controller.js";
-import { upload } from "../middlewares/multer.middleware.ts";
-import { verifyJWT } from "../middlewares/auth.middleware.ts";
-const router = express.Router();
+import { Router } from "express";
+import { changePassword, forgotPassword, login, logout, registerTechnician, registerUser, sendOtp } from "../controllers/auth.controller";
+import { verifyJWT } from "../middlewares/auth.middleware";
 
-router.post("/register-individual", registerIndividualUser);
-router.post("/register-business", upload.single("panCard"), registerBusinessUser);
-router.post("/register-technician", upload.single("panCard"), registerTechnician);
-router.post("/login", logInUser);
-router.get("/logout", verifyJWT, logOutUser);
-router.post("/request-otp",requestOtp);
-router.post("/verify-otp",verifyOtp);
-router.patch("/reset-password", verifyJWT, resetPassword);
-router.patch("/upload-profile-picture", verifyJWT, upload.single("profile"), uploadProfilePicture);
+const router = Router();
+
+router.post("/register-user", registerUser);
+router.post("/register-technician", registerTechnician);
+router.post("/login", login);
+router.post("/logout", verifyJWT, logout);
+router.post("/send-otp", sendOtp);
+router.patch("/forgot-password", forgotPassword);
+router.patch("/change-password", changePassword);
 
 export default router;
