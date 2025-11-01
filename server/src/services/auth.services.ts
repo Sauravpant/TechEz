@@ -196,3 +196,11 @@ export const forgotPasswordService = async (data: ForgotPassword): Promise<void>
   await user.save();
   OtpRequest.deleteOne({ email: data.email });
 };
+
+
+export const deactivateAccountService = async (userId: string): Promise<void> => {
+  const user = await User.findByIdAndUpdate(userId, { isDeactivated: true, refreshToken: undefined });
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+};

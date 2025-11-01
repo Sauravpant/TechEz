@@ -10,6 +10,7 @@ import {
 } from "../validators/auth.validators";
 import {
   changePasswordService,
+  deactivateAccountService,
   forgotPasswordService,
   loginService,
   logoutService,
@@ -77,4 +78,11 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
   const data = forgotPasswordSchema.parse(req.body);
   await forgotPasswordService(data);
   return res.status(200).json(new ApiResponse(200, null, "Password Reset Successfully"));
+});
+
+export const deactivateAccount = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  await deactivateAccountService(req.user?.id);
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  return res.status(200).json(new ApiResponse(200, null, "Account Deactivated Successfully. Login to activate again."));
 });
