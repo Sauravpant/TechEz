@@ -11,7 +11,6 @@ interface AuthenticatedRequest extends Request {
 
 export const verifyJWT = asyncHandler(async (req: AuthenticatedRequest, _, next: NextFunction) => {
   try {
-    console.log(req.cookies?.accessToken)
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
       throw new AppError(201, "Unauthorized access");
