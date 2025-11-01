@@ -10,6 +10,6 @@ router.post("/login", login);
 router.post("/logout", verifyJWT, logout);
 router.post("/send-otp", sendOtp);
 router.patch("/forgot-password", forgotPassword);
-router.patch("/change-password", changePassword);
+router.patch("/change-password", verifyJWT,changePassword);
 
 export default router;
