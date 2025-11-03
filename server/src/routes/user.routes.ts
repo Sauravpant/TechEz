@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { verifyJWT } from "../../middlewares/auth.middleware";
-import { deleteUserProfilePicture, getUserProfile, updateUserProfile, uploadUserProfilePicture } from "../../controllers/user/user-profile.controller";
-import { upload } from "../../middlewares/multer.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware";
+import { deleteUserProfilePicture, getUserProfile, updateUserProfile, uploadUserProfilePicture } from "../controllers/user.controller";
+import { upload } from "../middlewares/multer.middleware";
 
 const router = Router();
 

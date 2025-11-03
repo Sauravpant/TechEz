@@ -1,15 +1,15 @@
-import { asyncHandler } from "../../utils/async-handler";
-import { AuthenticatedRequest } from "../../types/auth.types";
+import { asyncHandler } from "../utils/async-handler";
+import { AuthenticatedRequest } from "../types/auth.types";
 import { Response } from "express";
-import { updateUserProfileSchema } from "../../validators/user/user-profile.validators";
-import logger from "../../utils/logger";
+import { updateUserProfileSchema } from "../validators/user.validators";
+import logger from "../utils/logger";
 import {
   deleteUserProfilePictureService,
   getUserProfileService,
   updateUserProfileService,
   uploadUserProfilePictureService,
-} from "../../services/user/user-profile.services";
-import { ApiResponse } from "../../utils/api-response";
+} from "../services/user.services";
+import { ApiResponse } from "../utils/api-response";
 
 export const updateUserProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const data = updateUserProfileSchema.parse(req.body);

@@ -1,8 +1,8 @@
-import { User } from "../../models/user.model";
-import { User as UserResponse } from "../../types/auth.types";
-import { UpdateUserProfile } from "../../types/user/user-profile.types";
-import { AppError } from "../../utils/app-error";
-import { deleteFromCloudinary, uploadToCloudinary } from "../../utils/cloudinary";
+import { User } from "../models/user.model";
+import { User as UserResponse } from "../types/auth.types";
+import { UpdateUserProfile } from "../types/user.types";
+import { AppError } from "../utils/app-error";
+import { deleteFromCloudinary, uploadToCloudinary } from "../utils/cloudinary";
 
 export const updateUserProfileService = async (userId: string, data: UpdateUserProfile): Promise<UserResponse> => {
   let updateData: UpdateUserProfile = {};
