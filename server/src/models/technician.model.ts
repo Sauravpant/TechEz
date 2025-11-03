@@ -9,6 +9,7 @@ export interface ITechnician extends Document {
   documentUrl?: string | null;
   documentPublicId?: string | null;
   status: "pending" | "approved" | "rejected";
+  verificationType?: "professionalLicense" | "manualVerification";
   bio: string;
   description: string;
   createdAt: Date;
@@ -49,6 +50,11 @@ const technicianSchema = new Schema<ITechnician>(
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
+    },
+    verificationType: {
+      type: String,
+      enum: ["professionalLicense", "manualVerification"],
+      default: "manualVerification",
     },
     bio: {
       type: String,
