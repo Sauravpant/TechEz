@@ -31,7 +31,7 @@ export const updateUserProfileService = async (userId: string, data: UpdateUserP
   };
 };
 
-export const uploadUserProfilePictureService = async (data: { fileBuffer: Buffer; fileName: string; _id: string }): Promise<string> => {
+export const uploadProfilePictureService = async (data: { fileBuffer: Buffer; fileName: string; _id: string }): Promise<string> => {
   const user = await User.findById(data._id);
 
   if (!user) {
@@ -54,7 +54,7 @@ export const uploadUserProfilePictureService = async (data: { fileBuffer: Buffer
   return user.profilePictureUrl!;
 };
 
-export const deleteUserProfilePictureService = async (userId: string): Promise<void> => {
+export const deleteProfilePictureService = async (userId: string): Promise<void> => {
   const user = await User.findById(userId);
 
   if (!user) {

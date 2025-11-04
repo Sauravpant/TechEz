@@ -4,10 +4,10 @@ import { Response } from "express";
 import { updateUserProfileSchema } from "../validators/user.validators";
 import logger from "../utils/logger";
 import {
-  deleteUserProfilePictureService,
+  deleteProfilePictureService,
   getUserProfileService,
   updateUserProfileService,
-  uploadUserProfilePictureService,
+  uploadProfilePictureService,
 } from "../services/user.services";
 import { ApiResponse } from "../utils/api-response";
 
@@ -23,17 +23,17 @@ export const getUserProfile = asyncHandler(async (req: AuthenticatedRequest, res
   return res.status(200).json(new ApiResponse(200, user, "User profile fetched successfully"));
 });
 
-export const deleteUserProfilePicture = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  await deleteUserProfilePictureService(req.user._id.toString());
+export const deleteProfilePicture = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  await deleteProfilePictureService(req.user._id.toString());
   return res.status(200).json(new ApiResponse(200, null, "User profile picture deleted successfully"));
 });
 
-export const uploadUserProfilePicture = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+export const uploadProfilePicture = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json(new ApiResponse(400, null, "Profile picture  is required"));
   }
 
-  const result = await uploadUserProfilePictureService({
+  const result = await uploadProfilePictureService({
     fileBuffer: req.file.buffer,
     fileName: req.file.originalname,
     _id: req.user._id.toString(),
