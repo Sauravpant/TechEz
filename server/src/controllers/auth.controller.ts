@@ -20,6 +20,8 @@ import {
 } from "../services/auth.services";
 import { ApiResponse } from "../utils/api-response";
 import { AuthenticatedRequest } from "../types/auth.types";
+import { AppError } from "../utils/app-error";
+import logger from "../utils/logger";
 
 const environment = process.env.NODE_ENV;
 
@@ -31,8 +33,19 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
 
 export const registerTechnician = asyncHandler(async (req: Request, res: Response) => {
   const validatedData = registerTechnicianSchema.parse(req.body);
-  const file = req.file;
-  await registerTechnicianService({ ...validatedData, document: file ? { file: file.buffer, filename: file.originalname } : undefined });
+  const files = req.files as { [key: string]: Express.Multer.File[] };
+  const profile = files.profilePicture[0];
+  if(!profile) {
+    throw new AppError(400,"Profile Picture is required")
+  }
+  const verificationDocument = files.verificationDocument ? files.verificationDocument[0] : null;
+  await registerTechnicianService(
+    {
+      ...validatedData,
+      document: verificationDocument ? { file: verificationDocument.buffer, filename: verificationDocument.originalname } : undefined,
+    },
+    { fileBuffer: profile.buffer, fileName: profile.originalname }
+  );
   return res.status(201).json(new ApiResponse(201, null, "Technician Registered Successfully"));
 });
 

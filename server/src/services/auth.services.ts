@@ -30,7 +30,7 @@ export const registerUserService = async (data: RegisterUser): Promise<void> => 
 };
 
 // Register Technician Service
-export const registerTechnicianService = async (data: RegisterTechnician): Promise<void> => {
+export const registerTechnicianService = async (data: RegisterTechnician, profile: { fileBuffer: Buffer; fileName: string }): Promise<void> => {
   const userExists = await User.findOne({ $or: [{ email: data.email }, { phone: data.phone }] });
   if (userExists) {
     throw new AppError(400, "User with given email or phone number already exists");
@@ -56,22 +56,48 @@ export const registerTechnicianService = async (data: RegisterTechnician): Promi
   }
   const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
+  //Upload profile picture
+  let profilePictureUrl: string = null;
+  let profilePicturePublicId: string = null;
+  if (profile && profile.fileBuffer && profile.fileName) {
+    const uploadResult = await uploadToCloudinary(profile.fileBuffer, profile.fileName);
+    profilePictureUrl = uploadResult.secure_url;
+    profilePicturePublicId = uploadResult.public_id;
+  }
+
   //Using Transaction to ensure the Atomicity according to the ACID properties
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-  const user = await User.create([{ name: data.name, email: data.email, password: hashedPassword, phone: data.phone, role: "technician" }], { session });
+    const user = await User.create(
+      [
+        {
+          name: data.name,
+          email: data.email,
+          password: hashedPassword,
+          phone: data.phone,
+          role: "technician",
+          profilePictureUrl,
+          profilePicturePublicId,
+        },
+      ],
+      {
+        session,
+      }
+    );
     await Technician.create(
-[      {
-        user: user[0]._id,
-        experience: data.experience,
-        category: categoryExists._id,
-        registrationNumber: data?.registrationNumber || null,
-        documentUrl: uploadedImage ? uploadedImage.secure_url : null,
-        documentPublicId: uploadedImage ? uploadedImage.public_id : null,
-        bio: data.bio,
-        description: data.description,
-      }],
+      [
+        {
+          user: user[0]._id,
+          experience: data.experience,
+          category: categoryExists._id,
+          registrationNumber: data?.registrationNumber || null,
+          documentUrl: uploadedImage ? uploadedImage.secure_url : null,
+          documentPublicId: uploadedImage ? uploadedImage.public_id : null,
+          bio: data.bio,
+          description: data.description,
+        },
+      ],
       { session }
     );
     await session.commitTransaction();
@@ -132,7 +158,7 @@ export const loginService = async (email: string, password: string): Promise<Use
     return { accessToken, refreshToken, technician };
   }
 
-  return { accessToken, refreshToken,user };
+  return { accessToken, refreshToken, user };
 };
 
 // Logout Service
@@ -196,7 +222,6 @@ export const forgotPasswordService = async (data: ForgotPassword): Promise<void>
   await user.save();
   OtpRequest.deleteOne({ email: data.email });
 };
-
 
 export const deactivateAccountService = async (userId: string): Promise<void> => {
   const user = await User.findByIdAndUpdate(userId, { isDeactivated: true, refreshToken: undefined });
