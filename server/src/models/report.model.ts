@@ -30,6 +30,7 @@ const reportSchema = new Schema<IReport>(
     },
     details: {
       type: String,
+      required: true,
     },
   },
   { timestamps: true }
