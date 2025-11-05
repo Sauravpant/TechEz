@@ -2,7 +2,6 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IReview extends Document {
   _id: mongoose.Types.ObjectId;
-  booking: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   technician: mongoose.Types.ObjectId;
   rating: number;
@@ -13,12 +12,6 @@ export interface IReview extends Document {
 
 const reviewSchema = new Schema<IReview>(
   {
-    booking: {
-      type: Schema.Types.ObjectId,
-      ref: "Booking",
-      required: true,
-      index: true,
-    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
