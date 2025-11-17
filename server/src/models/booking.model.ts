@@ -33,6 +33,7 @@ const bookingSchema = new Schema<IBooking>(
     },
     completedAt: {
       type: Date,
+      default: null,
     },
     bookingMethod: {
       type: String,
