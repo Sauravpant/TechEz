@@ -3,7 +3,7 @@ import { Booking, IBooking } from "../models/booking.model";
 import { Category, ICategory } from "../models/category.model";
 import { ITechnician, Technician } from "../models/technician.model";
 import { IUser } from "../models/user.model";
-import { CreateBookingRequest, RaiseBookingPrice } from "../types/booking.types";
+import { BookingFilters, CreateBookingRequest, RaiseBookingPrice, TechnicianBookings, UserBookings } from "../types/booking.types";
 import { AppError } from "../utils/app-error";
 
 const getTechnicianId = async (userId: string): Promise<string> => {
@@ -247,6 +247,7 @@ export const cancelBookingByTechnicianService = async (user: string, bookingId: 
     bookingId,
     {
       status: "cancelled",
+      finalPrice: 0,
     },
     { new: true }
   )
@@ -339,6 +340,7 @@ export const cancelBookingByUserService = async (user: string, bookingId: string
     bookingId,
     {
       status: "cancelled",
+      finalPrice: 0,
     },
     { new: true }
   )
@@ -366,4 +368,91 @@ export const cancelBookingByUserService = async (user: string, bookingId: string
   };
   // Notify the technician about the booking cancellation in real-time
   io.to(booking.user.id).emit("bookingCancelled", { message: "The booking has been cancelled by the user", booking });
+};
+
+export const getUserBookingsService = async (userId: string, filters: BookingFilters): Promise<UserBookings[]> => {
+  const limit = filters.limit || 10;
+  const page = filters.page || 0;
+  const sortBy = filters.sortBy === "asc" ? 1 : -1;
+  const skip = page * limit;
+  const filter: BookingFilters = {};
+  if (filters.status !== undefined) {
+    filter.status = filters.status;
+  }
+  if (filters.bookingMethod !== undefined) {
+    filter.bookingMethod = filters.bookingMethod;
+  }
+  const bookings = await Booking.find({ user: userId, ...filter })
+    .populate<{ technician: ITechnician & { user: IUser } }>({
+      path: "technician",
+      select: "_id user",
+      populate: { path: "user", select: "_id name email phone profilePictureUrl" },
+    })
+    .populate<{ category: ICategory }>("category", "name")
+    .sort({ createdAt: sortBy })
+    .skip(skip)
+    .limit(limit);
+  const formattedBookings = bookings.map((booking) => ({
+    id: booking._id.toString(),
+    technician: {
+      id: booking.technician._id.toString(),
+      name: booking.technician.user.name,
+      email: booking.technician.user.email,
+      phone: booking.technician.user.phone,
+      profilePictureUrl: booking.technician.user.profilePictureUrl,
+    },
+    category: booking.category.name,
+    title: booking.title,
+    description: booking.description,
+    initialPrice: booking.initialPrice,
+    finalPrice: booking.finalPrice,
+    location: booking.location,
+    status: booking.status,
+    bookingMethod: booking.bookingMethod,
+    userAgreement: booking.userAgreement,
+    createdAt: booking.createdAt,
+  }));
+  return formattedBookings;
+};
+
+export const getTechnicianBookingsService = async (userId: string, filters: BookingFilters): Promise<TechnicianBookings[]> => {
+  const technicianId = await getTechnicianId(userId);
+  const limit = filters.limit || 10;
+  const page = filters.page || 0;
+  const sortBy = filters.sortBy === "asc" ? 1 : -1;
+  const skip = page * limit;
+  const filter: BookingFilters = {};
+  if (filters.status !== undefined) {
+    filter.status = filters.status;
+  }
+  if (filters.bookingMethod !== undefined) {
+    filter.bookingMethod = filters.bookingMethod;
+  }
+  const bookings = await Booking.find({ technician: technicianId, ...filter })
+    .populate<{ user: IUser }>("user", "_id name email phone profilePictureUrl")
+    .populate<{ category: ICategory }>("category", "name")
+    .sort({ createdAt: sortBy })
+    .skip(skip)
+    .limit(limit);
+  const formattedBookings = bookings.map((booking) => ({
+    id: booking._id.toString(),
+    user: {
+      id: booking.user._id.toString(),
+      name: booking.user.name,
+      email: booking.user.email,
+      phone: booking.user.phone,
+      profilePictureUrl: booking.user.profilePictureUrl,
+    },
+    category: booking.category.name,
+    title: booking.title,
+    description: booking.description,
+    initialPrice: booking.initialPrice,
+    finalPrice: booking.finalPrice,
+    location: booking.location,
+    status: booking.status,
+    bookingMethod: booking.bookingMethod,
+    userAgreement: booking.userAgreement,
+    createdAt: booking.createdAt,
+  }));
+  return formattedBookings;
 };

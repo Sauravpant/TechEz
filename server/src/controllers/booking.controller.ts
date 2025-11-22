@@ -1,17 +1,20 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
 import { asyncHandler } from "../utils/async-handler";
-import { createBookingRequestSchema, raiseBookingPriceSchema } from "../validators/booking.validators";
+import { bookingFiltersSchema, createBookingRequestSchema, raiseBookingPriceSchema } from "../validators/booking.validators";
 import {
   acceptManualBookingService,
   cancelBookingByTechnicianService,
   cancelBookingByUserService,
   completeManualBookingService,
   createManualBookingRequestService,
+  getTechnicianBookingsService,
+  getUserBookingsService,
   raiseManualBookingPriceService,
   userAgreementService,
 } from "../services/booking.services";
 import { ApiResponse } from "../utils/api-response";
+import logger from "../utils/logger";
 
 export const createManualBookingRequest = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user._id.toString();
@@ -60,4 +63,18 @@ export const userCancelBooking = asyncHandler(async (req: AuthenticatedRequest, 
   const userId = req.user._id.toString();
   await cancelBookingByUserService(userId, bookingId);
   return res.status(200).json(new ApiResponse(200, null, "Booking cancelled successfully"));
+});
+
+export const getUserBookings= asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user._id.toString();
+  const filters = bookingFiltersSchema.parse(req.query);
+  const bookings = await getUserBookingsService(userId, filters);
+  return res.status(200).json(new ApiResponse(200, bookings, "User bookings retrieved successfully"));
+});
+
+export const getTechnicianBookings= asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user._id.toString();
+  const filters = bookingFiltersSchema.parse(req.query);
+  const bookings = await getTechnicianBookingsService(userId, filters);
+  return res.status(200).json(new ApiResponse(200, bookings, "Technician bookings retrieved successfully"));
 });
