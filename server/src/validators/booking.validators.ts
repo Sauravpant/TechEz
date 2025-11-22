@@ -13,3 +13,11 @@ export const raiseBookingPriceSchema = z.object({
   bookingId: z.string(),
   finalPrice: z.coerce.number().min(0, "Final price must be at least 0"),
 });
+
+export const bookingFiltersSchema = z.object({
+  status: z.enum(["pending", "accepted", "completed", "cancelled"]).optional(),
+  bookingMethod: z.enum(["manual", "bid"]).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
+  page: z.coerce.number().min(0).optional(),
+  sortBy: z.enum(["asc", "desc"]).optional(),
+});
