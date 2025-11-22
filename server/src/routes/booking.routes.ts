@@ -6,6 +6,8 @@ import {
   cancelTechnicianBooking,
   completeManualBooking,
   createManualBookingRequest,
+  getTechnicianBookings,
+  getUserBookings,
   raiseManualBookingPrice,
   userAgreement,
   userCancelBooking,
@@ -23,7 +25,7 @@ router.patch("/accept-booking/:bookingId", verifyUser, verifyTechnician, acceptM
 router.patch("/complete-booking/:bookingId", verifyUser, verifyTechnician, completeManualBooking);
 router.patch("/user-agreement/:bookingId", verifyUser, userAgreement);
 router.patch("/cancel-user-booking/:bookingId", verifyUser, userCancelBooking);
-
-router.use(verifyJWT);
+router.get("/user-bookings", verifyUser, getUserBookings);
+router.get("/technician-bookings", verifyUser, verifyTechnician, getTechnicianBookings);
 
 export default router;
