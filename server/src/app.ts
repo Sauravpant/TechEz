@@ -40,6 +40,12 @@ export const io: Server = new Server(server, {
 io.on("connection", (socket) => {
   logger.info(`A client with socket id ${socket.id} connected`);
 
+  socket.on("joinUserRooom", (data: { userId: string }) => {
+    socket.join(data.userId);
+    socket.emit("joinedRoom", `Joined room: ${data.userId}`);
+    logger.info(`Socket with id ${socket.id} joined room: ${data.userId}`);
+  });
+
   socket.on("joinTechnicianRoom", (data: { technicianId: string; category: string }) => {
     //Join the room based on technician id to receive manual bookings on real time
     socket.join(data.technicianId);
@@ -51,6 +57,15 @@ io.on("connection", (socket) => {
     socket.emit("joinedRoom", `Joined rooms: ${data.technicianId} and ${data.category}`);
 
     logger.info(`Socket with id ${socket.id} joined rooms: ${data.technicianId} and ${data.category}`);
+  });
+ 
+  // Join bids room for real-time bid updates
+  socket.on("joinBidsRoom", (category: string) => {
+    socket.join(`bids:${category}`);
+    
+    // Notify the client that they have joined the bids room
+    socket.emit("joinedBidRoom", `Joined bids room for category: ${category}`);
+    logger.info(`Socket with id ${socket.id} joined bids room for category: ${category}`);
   });
 });
 
