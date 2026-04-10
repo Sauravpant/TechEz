@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
-import { Star, TrendingUp, AlertOctagon, CheckCircle2, Clock, XCircle, ChevronRight } from "lucide-react";
+import { Star, TrendingUp, AlertOctagon, CheckCircle2, Clock, ChevronRight } from "lucide-react";
 
 export default function TechnicianOverviewPage() {
   const { data: bookingsData, isLoading: bookingsLoading } = useTechnicianBookings({ limit: 100 });

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store/store";
 import { logoutUser } from "@/features/auth/authSlice";
-import { Button } from "@/components/ui/button";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 export default function DashboardTopbar() {
