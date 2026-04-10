@@ -1,86 +1,103 @@
-import { BrowserRouter } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
-import Otp from "../pages/SignUp/Otp";
-import VerifyEmail from "../pages/SignUp/VerifyEmail";
-import RegisterTechnician from "../pages/SignUp/RegsiterTechnician";
-import RegisterIndividual from "../pages/SignUp/RegisterIndividual";
-import LoginPage from "../pages/Login/Loginpage";
-import Page from "../pages/admin/app/page";
-import RegistrationPage from "../pages/SignUp/RegistrationPage";
-import Notifications from "../pages/admin/pages/Notifications";
-import UserLayout from "../components/layout/UserLayout";
-import UserHomePage from "../pages/User/UserHomePage";
-import Users from "../pages/admin/pages/Users";
-import Technicians from "../pages/admin/pages/Technicians";
-import RoleRoute from "./RoleRoute";
-import Unauthorized from "../pages/Unauthorized";
-import TechnicianLayout from "../components/layout/TechnicianLayout";
-import TechnicianHomePage from "../pages/technician/TechnicianHomePage";
-import PendingRequests from "../pages/technician/PendingRequests";
-import HistoryPage from "../pages/technician/HistoryPage";
-import ServicesPage from "../pages/User/Services/Services";
-import PostJobPage from "../pages/User/Services/PostBid";
-import BrowseTechniciansPage from "../pages/User/Services/BookingRequest";
-import UserHistoryPage from "../pages/User/HistoryPage";
-import Bookings from "../pages/User/Bookings";
-import BookingModel from "../pages/User/BookingRequestPage";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ProtectedRoute } from "@/routes/ProtectedRoutes";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import UserAppLayout from "@/components/layout/UserAppLayout";
+import HomePage from "@/pages/HomePage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import TechnicianListPage from "@/pages/technicians/TechnicianListPage";
+import TechnicianDetailsPage from "@/pages/technicians/TechnicianDetailsPage";
+import LoginPage from "@/pages/auth/LoginPage";
+import RegisterPage from "@/pages/auth/RegisterPage";
+import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
+import UserOverviewPage from "@/pages/user/UserOverviewPage";
+import BookingsHubPage from "@/pages/user/BookingsHubPage";
+import NewBookingPage from "@/pages/user/NewBookingPage";
+import BiddingDummyPage from "@/pages/user/BiddingDummyPage";
+import UserReviewsPage from "@/pages/user/UserReviewsPage";
+import UserReportsPage from "@/pages/user/UserReportsPage";
+import NewReportPage from "@/pages/user/NewReportPage";
+import UserSettingsPage from "@/pages/user/UserSettingsPage";
+import TechnicianOverviewPage from "@/pages/technician/TechnicianOverviewPage";
+import TechnicianBookingsPage from "@/pages/technician/TechnicianBookingsPage";
+import TechnicianReviewsPage from "@/pages/technician/TechnicianReviewsPage";
+import TechnicianReportsPage from "@/pages/technician/TechnicianReportsPage";
+import TechnicianSettingsPage from "@/pages/technician/TechnicianSettingsPage";
 
-const AppRoutes = () => {
+export default function AppRoutes() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* User Routes */}
-        <Route path="/" element={<UserLayout />}>
-          <Route index element={<UserHomePage />}></Route>
-          <Route path="services" element={<ServicesPage />}></Route>
+    <Routes>
+      <Route path="/user" element={<Navigate to="/" replace />} />
+      <Route path="/user/technicians" element={<Navigate to="/technicians" replace />} />
+      <Route path="/user/technicians/:technicianId" element={<Navigate to="/technicians/:technicianId" replace />} />
 
-          {/* Protected User routes */}
-          <Route element={<RoleRoute allowedRoles="individual" />}>
-            <Route path="/services/post-job" element={<PostJobPage />} />
-            <Route path="/services/technicians" element={<BrowseTechniciansPage />} />
-            <Route path="/history" element={<UserHistoryPage />} />
-            <Route path="bookings" element={<Bookings />} />
-            <Route path="/bookings/book-technician" element={<BookingModel />} />
-          </Route>
+      <Route path="/user/booking" element={<Navigate to="/bookings" replace />} />
+      <Route path="/user/dashboard/bookings" element={<Navigate to="/bookings" replace />} />
+      <Route path="/user/dashboard/bookings/new" element={<Navigate to="/bookings/manual" replace />} />
+      <Route path="/user/dashboard/bidding" element={<Navigate to="/bookings/live" replace />} />
+
+      <Route element={<UserAppLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/technicians" element={<TechnicianListPage />} />
+        <Route path="/technicians/:technicianId" element={<TechnicianDetailsPage />} />
+
+        <Route element={<ProtectedRoute allowedRole="user" />}>
+          <Route path="/bookings" element={<BookingsHubPage />} />
+          <Route path="/bookings/manual" element={<NewBookingPage />} />
+          <Route path="/bookings/live" element={<BiddingDummyPage />} />
         </Route>
+      </Route>
 
-        {/* Technician Routes */}
-        <Route element={<RoleRoute allowedRoles="technician" />}>
-          <Route path="/technician/dashboard" element={<TechnicianLayout />}>
-            <Route index element={<TechnicianHomePage />}></Route>
-            <Route path="pending-requests" element={<PendingRequests />} />
-            <Route path="history" element={<HistoryPage />} />
-          </Route>
+      <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
+      <Route path="/auth/login" element={<LoginPage />} />
+      <Route path="/auth/register" element={<RegisterPage />} />
+      <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+
+      <Route element={<ProtectedRoute allowedRole="user" />}>
+        <Route
+          path="/user/dashboard"
+          element={
+            <DashboardLayout
+              items={[
+                { to: "/user/dashboard", label: "Overview", icon: "layout" },
+                { to: "/user/dashboard/reviews", label: "Reviews", icon: "star" },
+                { to: "/user/dashboard/reports", label: "Reports", icon: "flag" },
+                { to: "/user/dashboard/settings", label: "Settings", icon: "settings" },
+              ]}
+            />
+          }
+        >
+          <Route index element={<UserOverviewPage />} />
+          <Route path="reviews" element={<UserReviewsPage />} />
+          <Route path="reports" element={<UserReportsPage />} />
+          <Route path="reports/new" element={<NewReportPage />} />
+          <Route path="settings" element={<UserSettingsPage />} />
         </Route>
+      </Route>
 
-        {/* Authentication Routes */}
-        <Route path="/unauthorized" element={<Unauthorized />}></Route>
-        <Route path="/auth/login" element={<LoginPage />}></Route>
-        <Route path="/auth/signup" element={<RegistrationPage />}></Route>
-        <Route path="/auth/signup/verify-email" element={<VerifyEmail />} />
-        <Route path="/auth/signup/verify-otp" element={<Otp />} />
-        <Route path="/auth/signup/individual" element={<RegisterIndividual />}></Route>
-        <Route path="/auth/signup/technician" element={<RegisterTechnician />}></Route>
-
-        {/* Admin Routes */}
-        <Route element={<RoleRoute allowedRoles="admin" />}>
-          <Route
-            path="/admin/"
-            element={
-              <div className="dark">
-                <Page />
-              </div>
-            }
-          >
-            <Route index element={<Notifications />} />
-            <Route path="notifications" element={<Notifications />} />
-            <Route path="users" element={<Users />} />
-            <Route path="technicians" element={<Technicians />} />
-          </Route>
+      <Route element={<ProtectedRoute allowedRole="technician" />}>
+        <Route
+          path="/technician/dashboard"
+          element={
+            <DashboardLayout
+              items={[
+                { to: "/technician/dashboard", label: "Overview", icon: "layout" },
+                { to: "/technician/dashboard/bookings", label: "Bookings", icon: "calendar" },
+                { to: "/technician/dashboard/reviews", label: "Reviews", icon: "star" },
+                { to: "/technician/dashboard/reports", label: "Reports", icon: "flag" },
+                { to: "/technician/dashboard/settings", label: "Settings", icon: "settings" },
+              ]}
+            />
+          }
+        >
+          <Route index element={<TechnicianOverviewPage />} />
+          <Route path="bookings" element={<TechnicianBookingsPage />} />
+          <Route path="reviews" element={<TechnicianReviewsPage />} />
+          <Route path="reports" element={<TechnicianReportsPage />} />
+          <Route path="settings" element={<TechnicianSettingsPage />} />
         </Route>
-      </Routes>
-    </BrowserRouter>
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
-};
-
-export default AppRoutes;
+}
