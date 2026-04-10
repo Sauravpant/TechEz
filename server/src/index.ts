@@ -1,7 +1,8 @@
 import "dotenv/config";
 import connectDB from "./configs/db";
-import server from "./app";
+import { server } from "./app";
 import { connectRedis } from "./configs/redis";
+import logger from "./utils/logger";
 
 const PORT = process.env.PORT || 4000;
 
@@ -11,10 +12,10 @@ connectDB()
   })
   .then(() => {
     server.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
+      logger.info(`Server running at http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error(err);
+    logger.error(err);
     process.exit(1);
   });
