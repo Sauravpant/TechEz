@@ -16,7 +16,7 @@
 
 ## Overview
 
-TechEz is a full-stack technician marketplace platform built on a modular monolith architecture using React, Node.js, and TypeScript.
+TechEz is a full-stack technician marketplace platform built on a  monolith architecture using React, Node.js, and TypeScript.
 
 It enables users to discover technicians, create service bookings, place bids, and track service progress in real time. Technicians can manage profiles, handle service requests, and update job statuses efficiently.
 
@@ -90,7 +90,7 @@ Architecture diagram: [architecture.png](./architecture.png)
 - Role-based system architecture (User / Technician)
 - Caching layer using Redis for performance optimization
 - Scalable REST API design
-- Modular monolith architecture for maintainability and scalability
+- Monolith architecture for maintainability and simplicity
 
 ---
 
