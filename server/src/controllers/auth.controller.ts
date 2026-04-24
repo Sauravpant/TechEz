@@ -51,6 +51,7 @@ export const registerTechnician = asyncHandler(async (req: Request, res: Respons
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const validatedData = LoginSchema.parse(req.body);
+  console.log("Login attempt for email:", validatedData.email);
   const response = await loginService(validatedData.email, validatedData.password);
   res.cookie("accessToken", response.accessToken, {
     httpOnly: true,
@@ -64,8 +65,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     sameSite: environment === "production" ? "none" : "strict",
   });
 
-  const { accessToken, refreshToken, ...result } = response;
-  return res.status(200).json(new ApiResponse(200, result, "Login Successful"));
+  return res.status(200).json(new ApiResponse(200, response, "Login Successful"));
 });
 
 export const logout = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
