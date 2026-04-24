@@ -1,0 +1,51 @@
+services:
+  frontend:
+
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+
+
+    container_name: techez-frontend
+
+
+    ports:
+      - "5173:5173"
+
+
+    env_file:
+      - ./client/.env
+
+
+    depends_on:
+      - backend
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  backend:
+
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+
+
+    container_name: techez-backend
+
+
+    ports:
+      - "3000:3000"
+
+
+    env_file:
+      - ./server/.env
